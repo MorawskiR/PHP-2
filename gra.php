@@ -1,5 +1,11 @@
 <?php
 session_start();
+if(!isset($_SESSION['zalogowany']))
+{
+    header('Location:index.php');
+    exit();
+}
+
 ?>
 <!DOCTYPE HTML>
 <html lang="pl">
@@ -12,7 +18,7 @@ session_start();
 
     <?php
 
-    echo "<p> Witaj".$_SESSION['user']."!";
+    echo "<p> Witaj".$_SESSION['user'].'! [<a href="logout.php">log out </a>]</p>';
     echo "<p> <b>Drewno</b>:".$_SESSION['drewno'];
     echo "| <b>Kamien</b>:".$_SESSION['kamien'];
     echo "| <b>Drewno</b>:".$_SESSION['zboze']."</p>";
