@@ -17,50 +17,68 @@ if(!isset($_POST['login']) || (!isset($_POST['haslo'])))
     {
         echo "Error: ".$polaczenie->connect_errno . "Opis". $polaczenie->connect_error;
     }
-    else{
+    else
+    {
 
         
     $login = $_POST['login'];
     $haslo = $_POST['haslo'];
 
+  //  $login = htmlentities($login, ENT_QUOTES, "UTF-8");
 
-    $sql  = "SELECT * FROM uzytkownicy WHERE user='$login' AND pass='$haslo'"; 
-
-    if($rezultat = @$polaczenie->query($sql))
+    if($rezultat = @$polaczenie->query(
+        sprintf("SELECT * FROM uzytkownicy WHERE user = '%s'",
+        mysqli_real_escape_string($polaczenie, $login))))
     {
         $ilu_userow = $rezultat->num_rows;
+    
+
+    // $sql  = "SELECT * FROM uzytkownicy WHERE user='$login' AND pass='$haslo'"; 
+
+    // if($rezultat = @$polaczenie->query($sql))
+    
+      
         if($ilu_userow>0)
         {
-            $_SESSION['zalogowany'] = true;
-          
-
             $wiersz = $rezultat->fetch_assoc();
-            $_SESSION['id'] = $wiersz['id'];
-            $_SESSION['user'] = $wiersz['user'];
-            $_SESSION['drewno'] = $wiersz['drewno'];
-            $_SESSION['kamien'] = $wiersz['kamien'];
-            $_SESSION['zboze'] = $wiersz['zboze'];
-            $_SESSION['email'] = $wiersz['email'];
-            $_SESSION['dnipremium'] = $wiersz['dnipremium'];
+                if(password_verify($haslo, $wiersz['pass']))
+                {
+                $_SESSION['zalogowany'] = true;
             
-            unset($_SESSION['blad']);
 
-           $rezultat->free_result();
+    
+                $_SESSION['id'] = $wiersz['id'];
+                $_SESSION['user'] = $wiersz['user'];
+                $_SESSION['drewno'] = $wiersz['drewno'];
+                $_SESSION['kamien'] = $wiersz['kamien'];
+                $_SESSION['zboze'] = $wiersz['zboze'];
+                $_SESSION['email'] = $wiersz['email'];
+                $_SESSION['dnipremium'] = $wiersz['dnipremium'];
+                
+                unset($_SESSION['blad']);
 
-           header('Location: gra.php');
-       
+                $rezultat->free_result();
+
+                header('Location: gra.php');
+                }
+                else
+                {
+                    $_SESSION['blad'] = '<span style="color:red">blad </span>';
+                    header('Location: index.php');
+                }
         
-;        }else {
+    }
+    else 
+    {
 
         $_SESSION['blad'] = '<span style="color:red">blad </span>';
         header('Location: index.php');
 
         }
 
-    }
-
+    
         
     $polaczenie->close();
     }
-
+    }
 ?>
